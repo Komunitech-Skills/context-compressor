@@ -69,9 +69,10 @@ reads it only if it needs the surrounding context. Other modes: **logs** dedup r
 (`app.js: 12, 48, 91`); oversized generic output is head+tail-trimmed with an elision marker.
 
 ## Two engines, both automatic
-1. **Auto-compress** — a `tool_result_persist` hook compresses every verbose tool result
+1. **Auto-compress** — a live `agentToolResultMiddleware` compresses every verbose tool result
    (RTK-style: dedup / group-by-file / smart-truncate) **before it enters context**. The full
-   output is tee'd to disk first, so nothing is ever lost. Zero agent action.
+   output is tee'd to disk first, so nothing is ever lost. Zero agent action. (A
+   `tool_result_persist` hook is kept as a backward-compatible fallback.)
 2. **Pre-compaction snapshot** — a `before_compaction` hook deterministically snapshots the
    about-to-be-compacted messages to `memory/cache/.compaction/`, and audits each compaction.
    Nothing depends on the agent remembering to save.
@@ -106,8 +107,11 @@ openclaw plugins install git:rin-proxy/smart-cache-pro
 openclaw plugins enable smart-cache-pro
 ```
 Then **restart your OpenClaw gateway** so it loads the plugin (it also loads on the next gateway
-start). Verify with `openclaw plugins inspect smart-cache-pro --runtime` → `status: loaded`,
-3 hooks. Remove anytime: `openclaw plugins uninstall smart-cache-pro --force`.
+start). Verify with `openclaw plugins inspect smart-cache-pro --runtime` → `status: loaded`.
+(`inspect` lists the typed hooks but does **not** surface middleware registrations — to confirm
+Engine A end-to-end, run a >40-line tool output and check that `memory/cache/tee/` gets a file and
+`memory/cache/stats.jsonl` gets a row.) Remove anytime:
+`openclaw plugins uninstall smart-cache-pro --force`.
 
 ### Config (optional)
 Set under the plugin's config in your `openclaw.json`:
@@ -134,16 +138,25 @@ node test/compress.test.mjs
 ## Why a plugin (not a script you pipe through)
 | | Manual / advisory approach | Smart Cache Pro |
 |---|---|---|
-| Compress verbose output | you remember to pipe it through a script | **automatic** — `tool_result_persist` rewrites it for you |
+| Compress verbose output | you remember to pipe it through a script | **automatic** — a live `agentToolResultMiddleware` rewrites it for you |
 | Save before compaction | you hope the agent flushes in time | **deterministic** — `before_compaction` snapshots it |
 | How | an observe-only file-hook can only *nudge* | a **typed plugin** *intercepts and rewrites* |
 
 ## Status
-**v0.3.0** — grounded against `openclaw@2026.5.28` hook types; compressor unit-tested (9/9);
+**v0.4.0** — grounded against `openclaw@2026.6.6` middleware + hook types; compressor unit-tested.
 savings ledger + `scripts/report.mjs` (v0.2.0); retention/auto-cleanup (v0.3.0).
-**Gate-1 live-test PASSED** on a real OpenClaw 2026.5.28 gateway: the plugin loads, all 3 hooks
-register, and `register()` runs. **Gate-2 also PASSED** — confirmed on a real OpenClaw agent run:
-a 150-line `seq` tool output was auto-compressed and the full output tee'd to disk. Known gap: `tool_result_persist` does not fire in
-embedded/subagent runs ([openclaw#60209](https://github.com/openclaw/openclaw/issues/60209)).
+
+**Fix for #1 (Engine A inert on 2026.6.x).** `tool_result_persist` is not a live tool-output
+interceptor on modern OpenClaw — in 2026.6.x its only caller is the compaction transcript rebuild,
+so on interactive main-agent runs it never fired (no compression / no tee / no ledger). Engine A now
+uses the runtime-neutral **`agentToolResultMiddleware`**, which fires live on every tool result in
+the normal agent loop; `tool_result_persist` is kept as a backward-compatible fallback. Verified on
+a real OpenClaw 2026.6.6 gateway: a 150-line `seq` output was auto-compressed live, the full output
+tee'd, and a `stats.jsonl` row written.
+
+Prior: **Gate-1/Gate-2 PASSED** on OpenClaw 2026.5.28 (loads, hooks register, a 150-line `seq`
+output auto-compressed + tee'd). The subagent-hook gap tracked upstream in
+[openclaw#60209](https://github.com/openclaw/openclaw/issues/60209) is addressed by the middleware
+path, which fires for main-agent and subagent runs alike.
 
 *By Rin.*

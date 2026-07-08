@@ -1,7 +1,20 @@
 // smart-cache-pro — the typed-plugin (v2) of smart-cache.
-// Engine A: AUTO-compress verbose tool output via `tool_result_persist` (sync) — no agent action.
+// Engine A: AUTO-compress verbose tool output. PRIMARY path is the runtime-neutral
+//   `agentToolResultMiddleware` (fires LIVE on every tool result); the legacy
+//   `tool_result_persist` hook is kept as a secondary net (see the note below).
 // Engine B: deterministic pre-compaction snapshot via `before_compaction` — no agent discipline needed.
-// Grounded against openclaw@2026.5.28 hook types. Defensive: any error leaves the original untouched.
+// Grounded against openclaw@2026.6.6 hook + middleware types. Defensive: any error leaves the original untouched.
+//
+// WHY THE MIDDLEWARE (fixes #1 — inert on 2026.6.6):
+//   `tool_result_persist` is NOT a live tool-output interceptor on modern OpenClaw. In 2026.6.x
+//   its only caller is the compaction transcript rebuild — so on an interactive main-agent run it
+//   never fires, and Engine A produced zero compression / zero tee / zero ledger (issue #1).
+//   `api.registerAgentToolResultMiddleware(handler, { runtimes })` is the supported seam that runs
+//   live on every tool result in the normal agent loop: it receives the AgentToolResult
+//   ({ content: (TextContent|ImageContent)[], details, ... }) and returns a rewritten one.
+//   We register that as the primary path and KEEP the old hook as a harmless secondary net (it still
+//   fires at compaction-rebuild time on builds/paths where it's wired), so this is strictly additive
+//   and backward-compatible. Manifest must declare `contracts.agentToolResultMiddleware`.
 import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
 import { mkdirSync, writeFileSync, appendFileSync, readdirSync, statSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
@@ -27,7 +40,7 @@ export default definePluginEntry({
   id: "smart-cache-pro",
   name: "Smart Cache Pro",
   description:
-    "Automatic RTK-style compression of verbose tool output (tool_result_persist) + deterministic pre-compaction snapshot (before_compaction). The enforced, no-agent-discipline-needed version of smart-cache.",
+    "Automatic RTK-style compression of verbose tool output (live agentToolResultMiddleware, with a tool_result_persist fallback) + deterministic pre-compaction snapshot (before_compaction). The enforced, no-agent-discipline-needed version of smart-cache.",
   register(api) {
     const cfg = api.pluginConfig ?? {};
     if (cfg.enabled === false) {
@@ -53,34 +66,81 @@ export default definePluginEntry({
       if (pruned) log?.info?.(`smart-cache-pro pruned ${pruned} old cache file(s) (>${retentionDays}d)`);
     }
 
-    // ── Engine A — auto-compress verbose tool output. SYNC: no async/await here. ──
+    // ── Shared compressor. Given the plain text of a tool result, tee + compress + ledger.
+    //    Returns the replacement text (with the [full output: …] pointer) or null to leave the
+    //    original untouched. Used by BOTH the live middleware and the legacy persist hook. SYNC. ──
+    function compressToolResultText(text, toolName) {
+      if (denyTools.has(toolName)) return null;
+      if (typeof text !== "string") return null;
+      if (lineCount(text) < minLines) return null;           // leave small results alone
+      if (text.includes("[full output:")) return null;        // idempotent: never re-compress our own output
+      const teePath = teeFullSync(text, teeDir);              // save FULL output first (nothing lost)
+      const kind = detectKind(text);
+      const out = compress(text, kind, { maxLines: minLines });
+      if (!out) return null;                                  // compression wouldn't help → untouched
+      try {                                                   // v0.2.0 — savings ledger (best-effort; never affects the result)
+        mkdirSync(cacheDir, { recursive: true });
+        appendFileSync(statsFile, JSON.stringify({
+          at: new Date().toISOString(),
+          tool: toolName ?? "?",
+          kind,
+          linesIn: lineCount(text), linesOut: lineCount(out),
+          charsIn: text.length, charsOut: out.length,
+        }) + "\n");
+      } catch { /* stats are best-effort — never let a ledger write affect the tool result */ }
+      return out + (teePath ? `\n[full output: ${teePath}]` : "");
+    }
+
+    // Rewrite the first text block of an AgentToolResult-style content array in place.
+    // Returns a new content array, or null if nothing changed.
+    function rewriteContentBlocks(content, toolName) {
+      if (!Array.isArray(content)) return null;
+      const i = content.findIndex((b) => b?.type === "text" && typeof b.text === "string");
+      if (i < 0) return null;
+      const out = compressToolResultText(content[i].text, toolName);
+      if (out == null) return null;
+      const next = content.slice();
+      next[i] = { ...content[i], type: "text", text: out };
+      return next;
+    }
+
+    // ── Engine A (PRIMARY) — live agentToolResultMiddleware. Fires on every tool result in the
+    //    normal agent loop. event.result is an AgentToolResult { content, details, ... }. ──
+    if (typeof api.registerAgentToolResultMiddleware === "function") {
+      api.registerAgentToolResultMiddleware((event, ctx) => {
+        try {
+          const toolName = event?.toolName;
+          const result = event?.result;
+          const nextContent = rewriteContentBlocks(result?.content, toolName);
+          if (!nextContent) return;                           // nothing to change → leave original
+          return { result: { ...result, content: nextContent } };
+        } catch (err) {
+          log?.warn?.(`[smart-cache-pro] middleware failed (left original): ${String(err)}`);
+          return; // never break a tool call
+        }
+      }, { runtimes: ["openclaw", "codex"] });
+      log?.info?.("smart-cache-pro — live agentToolResultMiddleware registered (runtimes: openclaw, codex)");
+    } else {
+      log?.warn?.("smart-cache-pro: registerAgentToolResultMiddleware unavailable on this build — falling back to tool_result_persist only");
+    }
+
+    // ── Engine A (SECONDARY / legacy net) — tool_result_persist. SYNC: no async/await here.
+    //    On modern OpenClaw this fires at compaction-transcript rebuild, not live; harmless to keep
+    //    and still useful on older builds / paths where it IS the live persist point. ──
     api.on("tool_result_persist", (event, ctx) => {
       try {
-        if (denyTools.has(ctx?.toolName ?? event?.toolName)) return;
+        const toolName = ctx?.toolName ?? event?.toolName;
         const msg = event?.message;
-        const blocks = Array.isArray(msg?.content) ? msg.content : null;
-        if (!blocks) return;
-        const i = blocks.findIndex((b) => b?.type === "text" && typeof b.text === "string");
-        if (i < 0) return;
-        const text = blocks[i].text;
-        if (lineCount(text) < minLines) return;             // leave small results alone
-        const teePath = teeFullSync(text, teeDir);           // save FULL output first (nothing lost)
-        const kind = detectKind(text);
-        const out = compress(text, kind, { maxLines: minLines });
-        if (!out) return;                                    // compression wouldn't help → untouched
-        try {                                                // v0.2.0 — savings ledger (best-effort; never affects the result)
-          mkdirSync(cacheDir, { recursive: true });
-          appendFileSync(statsFile, JSON.stringify({
-            at: new Date().toISOString(),
-            tool: ctx?.toolName ?? event?.toolName ?? "?",
-            kind,
-            linesIn: lineCount(text), linesOut: lineCount(out),
-            charsIn: text.length, charsOut: out.length,
-          }) + "\n");
-        } catch { /* stats are best-effort — never let a ledger write affect the tool result */ }
-        const content = blocks.slice();
-        content[i] = { type: "text", text: out + (teePath ? `\n[full output: ${teePath}]` : "") };
-        return { message: { ...msg, content } };             // ← replaces the persisted tool result
+        const content = msg?.content;
+        if (Array.isArray(content)) {
+          const next = rewriteContentBlocks(content, toolName);
+          if (!next) return;
+          return { message: { ...msg, content: next } };       // ← replaces the persisted tool result
+        } else if (typeof content === "string") {
+          const out = compressToolResultText(content, toolName);
+          if (out == null) return;
+          return { message: { ...msg, content: out } };
+        }
       } catch (err) {
         log?.warn?.(`[smart-cache-pro] tool_result_persist failed (left original): ${String(err)}`);
         return; // never break a tool call
@@ -121,6 +181,6 @@ export default definePluginEntry({
       } catch { /* best-effort */ }
     });
 
-    log?.info?.("smart-cache-pro active — auto-compress (tool_result_persist) + pre-compaction snapshot");
+    log?.info?.("smart-cache-pro active — auto-compress (agentToolResultMiddleware + tool_result_persist fallback) + pre-compaction snapshot");
   },
 });
