@@ -150,8 +150,9 @@ node test/compress.test.mjs
 | How | an observe-only file-hook can only *nudge* | a **typed plugin** *intercepts and rewrites* |
 
 ## Status
-**v0.4.0** — grounded against `openclaw@2026.6.6` middleware + hook types; compressor unit-tested.
-savings ledger + `scripts/report.mjs` (v0.2.0); retention/auto-cleanup (v0.3.0).
+**v0.4.1** — grounded against `openclaw@2026.7.1` middleware + hook types; **verified live on a real
+2026.7.1 gateway** (loads, registers the middleware); compressor unit-tested (9/9) + middleware
+integration-tested (14/14). savings ledger + `scripts/report.mjs` (v0.2.0); retention/auto-cleanup (v0.3.0).
 
 **Fix for #1 (Engine A inert on 2026.6.x).** `tool_result_persist` is not a live tool-output
 interceptor on modern OpenClaw — in 2026.6.x its only caller is the compaction transcript rebuild,

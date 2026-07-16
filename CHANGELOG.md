@@ -1,5 +1,14 @@
 # Changelog — smart-cache-pro
 
+## 0.4.1 (2026-07-16)
+- Verified live on **OpenClaw 2026.7.1**: plugin loads, `register()` runs, and the live
+  `agentToolResultMiddleware` registers (event/return types match 2026.7.1 exactly). Build metadata
+  bumped `2026.6.6 → 2026.7.1`.
+- Documented Engine A **runtime coverage** in the README: it hooks OpenClaw's native tool-result
+  seam (runtimes `openclaw`/`codex`). Agents on the **Claude CLI** backend execute tools inside that
+  process, so those results never reach the middleware — they get **Engine B (pre-compaction
+  snapshot) only**. Engine B works on every backend.
+
 ## 0.4.0 (2026-07-08)
 - **Fix #1 — Engine A was inert on OpenClaw 2026.6.x.** `tool_result_persist` is not a live
   tool-output interceptor on modern OpenClaw; in 2026.6.x its only caller is the compaction
