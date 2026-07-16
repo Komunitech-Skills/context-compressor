@@ -3,6 +3,9 @@
   "name": "Smart Cache Pro",
   "description": "Automatic RTK-style compression of verbose tool output + deterministic pre-compaction snapshot. By Rin.",
   "activation": { "onStartup": true },
+  "contracts": {
+    "agentToolResultMiddleware": ["openclaw", "codex"]
+  },
   "configSchema": {
     "type": "object",
     "additionalProperties": false,

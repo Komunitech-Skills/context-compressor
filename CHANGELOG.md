@@ -1,5 +1,22 @@
 # Changelog — smart-cache-pro
 
+## 0.4.0 (2026-07-08)
+- **Fix #1 — Engine A was inert on OpenClaw 2026.6.x.** `tool_result_persist` is not a live
+  tool-output interceptor on modern OpenClaw; in 2026.6.x its only caller is the compaction
+  transcript rebuild, so on an interactive main-agent run the hook never fired and Engine A
+  produced zero compression / zero tee / zero ledger.
+- **Primary path is now `agentToolResultMiddleware`** — the runtime-neutral seam that runs live
+  on every tool result in the normal agent loop. Registered via
+  `api.registerAgentToolResultMiddleware(handler, { runtimes: ["openclaw", "codex"] })`, declared
+  in the manifest as `contracts.agentToolResultMiddleware`. Receives the `AgentToolResult`
+  (`{ content, details, … }`) and returns a rewritten one.
+- **`tool_result_persist` kept as a secondary net** — strictly additive / backward-compatible; it
+  still fires on older builds and at compaction-rebuild time. The compression logic is shared
+  between both paths.
+- **Idempotency guard** — output already carrying a `[full output: …]` pointer is never
+  re-compressed (prevents double-processing when both paths see the same result).
+- Grounded against openclaw@2026.6.6 middleware + hook types.
+
 ## 0.3.0 (2026-06-25)
 - **Retention / auto-cleanup** — on load, prune `tee/` outputs and `.compaction/` snapshots older
   than `retentionDays` (default 14; `0` = keep forever). `audit.log` and the `stats.jsonl` ledger are
