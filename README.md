@@ -77,6 +77,13 @@ reads it only if it needs the surrounding context. Other modes: **logs** dedup r
    about-to-be-compacted messages to `memory/cache/.compaction/`, and audits each compaction.
    Nothing depends on the agent remembering to save.
 
+> **Runtime coverage (important).** Engine A hooks OpenClaw's native tool-result seam
+> (`agentToolResultMiddleware`), so it applies to agents on the **`openclaw`** and **`codex`**
+> runtimes. Agents backed by the **Claude CLI** (`provider=claude-cli`, e.g. Claude Max) execute
+> their tools *inside the Claude CLI process*, so those tool results never reach OpenClaw's
+> middleware — such agents get **Engine B (pre-compaction snapshot) only**. Engine B works on every
+> backend.
+
 ## Proof — what you actually saved
 
 Every compression is logged to `memory/cache/stats.jsonl` (one line each). Print a report
