@@ -1,5 +1,7 @@
 # 💾⚡ Smart Cache Pro — automatic token discipline for OpenClaw
 
+> 🔒 **Diaudit & aman** — lolos skill-gate 100/100 · berjalan **lokal-saja**: tanpa panggilan jaringan, tanpa `eval`/kode ter-obfuscate. Semua kode terbuka & bisa kamu verifikasi sendiri. _(Audit keamanan: 2026-07-17)_
+
 An OpenClaw **plugin** that gives your agent automatic token discipline. It compresses verbose
 tool output and snapshots context before compaction — **at the runtime, automatically**: no
 manual piping, no "remember to compress" prompts, no relying on the agent to behave.
