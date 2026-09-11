@@ -17,7 +17,7 @@ node test/middleware.integration.mjs
 node test/failure-isolation.mjs
 ```
 
-Install the reviewed plugin checkout with `openclaw plugins install /absolute/checkout`. Configure `plugins.entries.smart-cache-pro.config.workspaceByAgent` with absolute paths for each intended agent. Set `plugins.entries.smart-cache-pro.hooks.allowConversationAccess=true` to permit the workspace-resolution hook; scope the plugin with `workspaceByAgent`. The supported `before_model_resolve` hook learns run/session workspace context. Reload the Gateway; check for hook warnings and inspect an actual compressed tool result plus its full-output file. Disable the plugin entry before uninstalling; keep cache data until retention expires. A plugin marked loaded alone does not prove compression.
+Install the reviewed plugin checkout with `openclaw plugins install /absolute/checkout`. Configure `plugins.entries.smart-cache-pro.config.workspaceByAgent` with absolute paths for each intended agent. Set `plugins.entries.smart-cache-pro.hooks.allowConversationAccess=true` to permit the workspace-resolution hook; scope the plugin with `workspaceByAgent`. When provided, this mapping is a strict agent allowlist: unlisted agents are skipped even when the Gateway supplies their workspace. An empty mapping disables processing for every agent. Omit the mapping only when automatic discovery for all agents is intended. The supported `before_model_resolve` hook learns run/session workspace context. Reload the Gateway; check for hook warnings and inspect an actual compressed tool result plus its full-output file. Disable the plugin entry before uninstalling; keep cache data until retention expires. A plugin marked loaded alone does not prove compression.
 
 ## Validation
 

@@ -17,12 +17,13 @@ export default definePluginEntry({
     const denyTools = new Set(cfg.denyTools ?? []);
     const retentionDays = cfg.retentionDays ?? 14;
     const maxLedgerBytes = cfg.maxLedgerBytes ?? 1024 * 1024;
+    const scopedAgents = cfg.workspaceByAgent == null ? null : new Set(Object.keys(cfg.workspaceByAgent));
     const workspaces = new Map(Object.entries(cfg.workspaceByAgent ?? {}));
     for (const agent of api.config?.agents?.list ?? []) {
-      if (agent.id && agent.workspace) workspaces.set(agent.id, agent.workspace);
+      if (!scopedAgents && agent.id && agent.workspace) workspaces.set(agent.id, agent.workspace);
     }
     const defaultWorkspace = api.config?.agents?.defaults?.workspace || process.env.OPENCLAW_WORKSPACE;
-    if (defaultWorkspace && !workspaces.has("main")) workspaces.set("main", defaultWorkspace);
+    if (!scopedAgents && defaultWorkspace && !workspaces.has("main")) workspaces.set("main", defaultWorkspace);
     const maintenance = new Map(), warned = new Set();
     const warnOnce = (key, message) => { if (!warned.has(key)) { warned.add(key); api.logger?.warn?.(message); } };
     function agentId(ctx) { return ctx?.agentId || /^agent:([^:]+):/.exec(ctx?.sessionKey || "")?.[1]; }
@@ -30,7 +31,7 @@ export default definePluginEntry({
     const scopeKeys = ctx => [ctx?.runId && `run:${agentId(ctx)}:${ctx.runId}`, ctx?.sessionKey && `session:${ctx.sessionKey}`].filter(Boolean);
     function remember(_event, ctx) {
       const id = agentId(ctx);
-      if (id && ctx?.workspaceDir && isAbsolute(ctx.workspaceDir)) {
+      if (id && (!scopedAgents || scopedAgents.has(id)) && ctx?.workspaceDir && isAbsolute(ctx.workspaceDir)) {
         for (const key of scopeKeys(ctx)) scopedWorkspaces.set(key, ctx.workspaceDir);
         while (scopedWorkspaces.size > 4096) scopedWorkspaces.delete(scopedWorkspaces.keys().next().value);
       }
@@ -39,8 +40,10 @@ export default definePluginEntry({
     // trusted run context before tools execute, or use an explicit workspace map.
     api.on("before_model_resolve", remember);
     function paths(ctx) {
+      const id = agentId(ctx);
+      if (scopedAgents && !scopedAgents.has(id)) return null;
       remember(null, ctx);
-      const id = agentId(ctx), value = ctx?.workspaceDir || scopeKeys(ctx).map(key => scopedWorkspaces.get(key)).find(Boolean) || (id && workspaces.get(id));
+      const value = ctx?.workspaceDir || scopeKeys(ctx).map(key => scopedWorkspaces.get(key)).find(Boolean) || (id && workspaces.get(id));
       if (!value || !isAbsolute(value)) {
         warnOnce(`scope:${id}`, "smart-cache-pro: workspace unresolved; original output retained");
         return null;

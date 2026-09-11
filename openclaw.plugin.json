@@ -46,7 +46,7 @@
         "additionalProperties": {
           "type": "string"
         },
-        "description": "Explicit agent ID to absolute workspace path; unknown agents are skipped."
+        "description": "Explicit agent allowlist mapping IDs to absolute workspace paths; unlisted agents are skipped even with runtime workspace context."
       },
       "maxLedgerBytes": {
         "type": "integer",

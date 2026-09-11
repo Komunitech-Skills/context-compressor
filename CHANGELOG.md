@@ -1,3 +1,8 @@
+## 0.4.3
+
+- Treat an explicit workspaceByAgent mapping as an agent allowlist across tool middleware, persistence and compaction hooks. Runtime workspace discovery cannot opt unlisted agents into compression.
+- Retain automatic discovery when the mapping is omitted; an empty mapping disables processing.
+
 # Changelog
 
 ## 2026-09-11 integration remediation
