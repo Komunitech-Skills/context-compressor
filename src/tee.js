@@ -8,10 +8,10 @@ let counter = 0;
 /** Write the full text to `<teeDir>/out-<stamp>-<pid>-<n>.log`; return the path (or null on failure). */
 export function teeFullSync(text, teeDir) {
   try {
-    mkdirSync(teeDir, { recursive: true });
+    mkdirSync(teeDir, { recursive: true, mode: 0o700 });
     const stamp = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14);
     const file = join(teeDir, `out-${stamp}-${process.pid}-${counter++}.log`);
-    writeFileSync(file, text);
+    writeFileSync(file, text, { mode: 0o600, flag: "wx" });
     return file;
   } catch {
     return null;

@@ -11,15 +11,15 @@ const CACHE = join(WS, "memory", "cache");
 process.env.OPENCLAW_WORKSPACE = WS;
 
 let src = readFileSync(join(DIR, "index.js"), "utf8");
-src = src.replace('import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";', "const definePluginEntry = (x) => x;");
+if (!process.env.OPENCLAW_SDK_REAL) src = src.replace('import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";', "const definePluginEntry = (x) => x;");
 src = src.replace(/from "\.\/src\/compress\.js"/, `from "${pathToFileURL(join(DIR, "src/compress.js")).href}"`);
 src = src.replace(/from "\.\/src\/tee\.js"/, `from "${pathToFileURL(join(DIR, "src/tee.js")).href}"`);
-const mod = await import(`data:text/javascript,${encodeURIComponent(src)}`);
+const mod = process.env.OPENCLAW_SDK_REAL ? await import(pathToFileURL(join(DIR,"index.js")).href) : await import(`data:text/javascript,${encodeURIComponent(src)}`);
 const entry = mod.default;
 
 let mw = null, mwOpts = null, persist = null;
 const api = {
-  pluginConfig: {},
+  pluginConfig: { workspaceByAgent: { "any-agent": WS } },
   config: { workspaceDir: WS },
   logger: { info() {}, warn(m) { console.log("WARN", m); } },
   registerAgentToolResultMiddleware: (fn, opts) => { mw = fn; mwOpts = opts; },
@@ -52,7 +52,7 @@ ok("image-only skipped", mw({ toolName: "x", result: { content: [{ type: "image"
 ok("small skipped", mw({ toolName: "x", result: { content: [{ type: "text", text: "a\nb" }] } }, {}) === undefined);
 const already = "x\n".repeat(50) + "[full output: /z]";
 ok("idempotent skip", mw({ toolName: "x", result: { content: [{ type: "text", text: already }] } }, {}) === undefined);
-ok("denyTools honored via persist path too", persist({ message: { content: "a\n".repeat(50) } }, { toolName: "exec" }) !== undefined);
+ok("denyTools honored via persist path too", persist({ message: { content: "repeated fixture content for compression\n".repeat(100) } }, { toolName: "exec", agentId: "any-agent" }) !== undefined);
 
 const after = existsSync(teeDir) ? readdirSync(teeDir).length : 0;
 ok("tee file written", after > before);
