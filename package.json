@@ -1,6 +1,6 @@
 {
   "name": "smart-cache-pro",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "type": "module",
   "description": "Automatic token compression + pre-compaction snapshots for OpenClaw agents \u2014 a typed plugin.",
   "license": "UNLICENSED",
@@ -19,7 +19,7 @@
     }
   },
   "scripts": {
-    "test": "node test/compress.test.mjs && node test/middleware.integration.mjs && node test/failure-isolation.mjs",
+    "test": "node test/compress.test.mjs && node test/middleware.integration.mjs && node test/failure-isolation.mjs && node test/research-preservation.mjs",
     "report": "node scripts/report.mjs"
   },
   "engines": {

@@ -1,3 +1,9 @@
+# 0.4.4 — Preserve research and agent handoffs
+
+- Limit default compression to shell/process tools with an explicit allowTools control.
+- Preserve valid JSON and structured tool results; retain denyTools precedence.
+- Add regression coverage for agent handoffs, research evidence, transcript persistence and unchanged inputs.
+
 ## 0.4.3
 
 - Treat an explicit workspaceByAgent mapping as an agent allowlist across tool middleware, persistence and compaction hooks. Runtime workspace discovery cannot opt unlisted agents into compression.

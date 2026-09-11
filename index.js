@@ -14,6 +14,9 @@ export default definePluginEntry({
     const cfg = api.pluginConfig ?? {};
     if (cfg.enabled === false) return;
     const minLines = Math.max(2, Number.isInteger(cfg.minLines) ? cfg.minLines : 40);
+    // Research, session handoffs and unknown tools must remain lossless. Shell
+    // tools are opt-in candidates; even those can return structured data.
+    const allowTools = new Set(cfg.allowTools ?? ["exec", "process", "bash", "exec_command"]);
     const denyTools = new Set(cfg.denyTools ?? []);
     const retentionDays = cfg.retentionDays ?? 14;
     const maxLedgerBytes = cfg.maxLedgerBytes ?? 1024 * 1024;
@@ -83,7 +86,8 @@ export default definePluginEntry({
       } catch { /* telemetry failure never changes the tool result */ }
     }
     function compressText(text, toolName, ctx) {
-      if (denyTools.has(toolName) || typeof text !== "string" || lineCount(text)<minLines || text.includes("[full output:")) return null;
+      if (!allowTools.has(toolName) || denyTools.has(toolName) || typeof text !== "string" || lineCount(text)<minLines || text.includes("[full output:")) return null;
+      try { JSON.parse(text); return null; } catch { /* Plain text may be compressed. */ }
       const start = performance.now(), kind = detectKind(text), out = compress(text,kind,{maxLines:minLines});
       if (!out) return null;
       const p = paths(ctx);
@@ -115,6 +119,7 @@ export default definePluginEntry({
     if (typeof api.registerAgentToolResultMiddleware === "function") {
       api.registerAgentToolResultMiddleware((event,ctx) => {
         try {
+          if (event?.result?.structuredContent != null) return;
           const content = rewrite(event?.result?.content,event?.toolName,ctx);
           if (content != null) return {result:{...event.result,content}};
         } catch { warnOnce("middleware-error","smart-cache-pro: compression unavailable; original output retained"); }

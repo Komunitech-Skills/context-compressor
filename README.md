@@ -1,6 +1,6 @@
 # smart-cache-pro
 
-Compress verbose tool output only after preserving the complete result in the owning workspace. Unknown scope or write failure preserves the original. Agent/run/session isolation, private output files, bounded ledger and activity-driven retention are included.
+Compress verbose tool output only after preserving the complete result in the owning workspace. Only shell/process tools are compression candidates by default; research results, agent handoffs and unknown tools remain intact. Valid JSON and results with structuredContent are also preserved. Unknown scope or write failure preserves the original. Agent/run/session isolation, private output files, bounded ledger and activity-driven retention are included.
 
 ## Compatibility
 
@@ -24,3 +24,7 @@ Install the reviewed plugin checkout with `openclaw plugins install /absolute/ch
 Run the repository tests against synthetic fixtures; inspect commands before using live credentials. Python tests: `python3 -m unittest discover -s tests -p "test_*.py"` where present. JavaScript tests are in `test/`, `tests/`, or `_semantic-stack/test-*.mjs`. Include install → reinstall → pinned update → rollback → uninstall, owner-data preservation, failure paths and a real OpenClaw integration test. No service or scheduler is enabled by the common skill installer.
 
 The detailed agent procedure remains in `SKILL.md` where present. The compatibility and lifecycle instructions in this README describe the current implementation.
+
+## Output scope
+
+`allowTools` defaults to `["exec", "process", "bash", "exec_command"]`; an empty array disables output compression while retaining compaction snapshots. `denyTools` takes precedence. Keep research, browser, memory and agent/session tools outside the allowlist: a full-output pointer does not replace lossless evidence or a complete handoff. This plugin cannot remove native tool display caps; workers should save full reports and return a concise summary plus the artifact path. Verify with `node test/research-preservation.mjs`.
