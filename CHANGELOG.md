@@ -1,4 +1,12 @@
-# Changelog — smart-cache-pro
+# Changelog
+
+## 2026-09-11 integration remediation
+
+Compress verbose tool output only after preserving the complete result in the owning workspace. Unknown scope or write failure preserves the original. Agent/run/session isolation, private output files, bounded ledger and activity-driven retention are included.
+
+Explicit workspace selection, reversible lifecycle and regression coverage; install status does not imply runtime readiness.
+
+— smart-cache-pro
 
 ## 0.4.1 (2026-07-16)
 - Verified live on **OpenClaw 2026.7.1**: plugin loads, `register()` runs, and the live
