@@ -30,11 +30,21 @@ try {
   hooks.before_compaction({messages:[{role:'user',content:'fixture'}]},{agentId:'second'});
   assert.equal(readdirSync(join(second,'memory/cache/compaction')).length,1);
   const learned=join(root,'learned');mkdirSync(learned);
+  // An explicit map is an allowlist even when a real Gateway supplies workspace context.
+  hooks.before_model_resolve({}, {agentId:'learned',runId:'denied',workspaceDir:learned});
+  assert.equal(middleware(event,{agentId:'learned',runId:'denied',workspaceDir:learned}),undefined);
+  hooks.before_compaction({messages:[{role:'user',content:'excluded fixture'}]}, {agentId:'learned',workspaceDir:learned});
+  assert(!existsSync(join(learned,'memory')));
+  // Without an explicit map, retain automatic discovery for existing installations.
+  entry.register({pluginConfig:{},config:{},logger:{info(){},warn(){}},registerAgentToolResultMiddleware(fn){middleware=fn},on(n,fn){hooks[n]=fn}});
   hooks.before_model_resolve({}, {agentId:'learned',runId:'a',sessionKey:'agent:learned:a',workspaceDir:learned});
   assert(middleware(event,{agentId:'learned',runId:'a'}).result.content[0].text.includes(learned));
   hooks.before_model_resolve({}, {agentId:'learned',runId:'b',sessionKey:'agent:learned:b',workspaceDir:second});
   assert(middleware(event,{agentId:'learned',runId:'a'}).result.content[0].text.includes(learned));
   assert(middleware(event,{agentId:'learned',sessionKey:'agent:learned:b'}).result.content[0].text.includes(second));
   assert.equal(middleware(event,{agentId:'learned'}),undefined);
+  entry.register({pluginConfig:{workspaceByAgent:{}},config:{agents:{list:[{id:'learned',workspace:learned}],defaults:{workspace:learned}}},logger:{info(){},warn(){}},registerAgentToolResultMiddleware(fn){middleware=fn},on(n,fn){hooks[n]=fn}});
+  assert.equal(middleware(event,{agentId:'learned',workspaceDir:learned}),undefined);
+  assert.equal(middleware(event,{agentId:'main',workspaceDir:learned}),undefined);
   console.log('PASS: save failure, unknown scope, two agents, original preservation, private modes, ledger rotation, snapshots and runtime workspace discovery');
 } finally {rmSync(root,{recursive:true,force:true});}
