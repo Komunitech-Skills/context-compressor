@@ -52,6 +52,19 @@
         "type": "integer",
         "minimum": 4096,
         "default": 1048576
+      },
+      "allowTools": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "default": [
+          "exec",
+          "process",
+          "bash",
+          "exec_command"
+        ],
+        "description": "Only these tool names may be compressed. Defaults to shell/process tools; use [] to disable output compression. Do not opt research, browser, memory, or inter-agent handoff tools into lossy compression. Valid JSON and structuredContent are preserved."
       }
     }
   }
