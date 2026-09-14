@@ -1,5 +1,11 @@
 # 0.4.4 — Preserve research and agent handoffs
 
+## 2026-09-14 — Audit acceptance
+
+- Document private-repository access, explicit prerequisites, functional expectations and recovery limits.
+- Add one offline test entrypoint and CI; distinguish runtime/behavior evidence from installation status.
+
+
 - Limit default compression to shell/process tools with an explicit allowTools control.
 - Preserve valid JSON and structured tool results; retain denyTools precedence.
 - Add regression coverage for agent handoffs, research evidence, transcript persistence and unchanged inputs.
