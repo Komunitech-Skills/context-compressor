@@ -69,6 +69,8 @@ Release evidence covers OpenClaw 2026.9.3. Node 22.13+ for package code; SDK int
 
 ## Install and verify
 
+For a reviewed local plugin source, `--force` acknowledges the source and `--accept-capabilities` records consent to its declared capabilities. Without the latter the CLI can reject activation even after copying files. Read the plugin manifest and scope its workspace/tool access before accepting. Review the exact checkout first; use the explicitly selected isolated instance. The flag can also replace an existing installation, so retain its previous code/configuration before using it for an update.
+
 Select an existing workspace explicitly; do not point a test at production. Review and check out the intended full commit before running its installer.
 
 ```bash
@@ -81,7 +83,7 @@ node test/failure-isolation.mjs
 Install the reviewed checkout:
 
 ```bash
-openclaw plugins install /absolute/checkout
+openclaw plugins install /absolute/checkout --force --accept-capabilities
 ```
 
 Apply the following plugin entry to the **selected OpenClaw instance**, replacing the sample agent/workspace. Preserve unrelated settings; do not replace the entire configuration file.
@@ -103,7 +105,7 @@ This is the value of `plugins.entries.smart-cache-pro`. `workspaceByAgent` is a 
 
 Restart the selected Gateway process after installing or updating plugin JavaScript. Config hot reload can retain the previous module in memory. Record the deployed source hash and verify a new synthetic tool result after restart: a long diff should include a full-output pointer; the file should preserve the complete original; valid JSON and research/handoff results should be unchanged. Inspect hook warnings. This does not require sending a Telegram message.
 
-For an update, retain the current reviewed checkout/config and output data, check out the new full commit, run `bash test.sh`, then install that checkout with `openclaw plugins install /absolute/checkout --force`. Preserve the approved mapping, restart the selected Gateway and repeat acceptance. If it fails, reinstall the saved previous checkout with `--force`, restore only the matching plugin entry, restart and verify. Do not erase output artifacts during code rollback. Disable the plugin entry before uninstalling; retention controls cache data. Character compression is not a measured token/billing saving.
+For an update, retain the current reviewed checkout/config and output data, check out the new full commit, run `bash test.sh`, then install that checkout with `openclaw plugins install /absolute/checkout --force --accept-capabilities`. Preserve the approved mapping, restart the selected Gateway and repeat acceptance. If it fails, reinstall the saved previous checkout with `--force`, restore only the matching plugin entry, restart and verify. Do not erase output artifacts during code rollback. Disable the plugin entry before uninstalling; retention controls cache data. Character compression is not a measured token/billing saving.
 
 ## Validation
 
