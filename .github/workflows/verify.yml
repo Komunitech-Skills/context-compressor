@@ -21,3 +21,5 @@ jobs:
       - run: bash test.sh
       - name: Verify README quick start
         run: bash examples/quickstart.sh
+      - name: Check documentation contracts
+        run: python3 scripts/check-docs.py
