@@ -19,3 +19,5 @@ jobs:
         with:
           node-version: '24'
       - run: bash test.sh
+      - name: Verify README quick start
+        run: bash examples/quickstart.sh
