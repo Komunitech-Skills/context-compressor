@@ -5,7 +5,8 @@
   "documents": [
     "README.md",
     "RELEASE-NOTES.md",
-    "COMPATIBILITY.md"
+    "COMPATIBILITY.md",
+    "BENCHMARK.md"
   ],
   "cli": [],
   "config": [
