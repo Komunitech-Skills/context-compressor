@@ -2,7 +2,7 @@
 
 Preserve complete verbose tool output in the owning workspace before returning a shorter representation to the model. Structured, research and handoff results remain intact by default.
 
-Navigation: [When to use it](#when-to-use-it) · [See the expected result](#see-the-expected-result) · [Quick start on synthetic data](#quick-start-on-synthetic-data) · [Using it from OpenClaw](#using-it-from-openclaw) · [Input, output and completion](#input-output-and-completion) · [Commands and configuration](#commands-and-configuration) · [Data and effects](#data-and-effects) · [Get the private repository](#get-the-private-repository) · [Compatibility](#compatibility) · [Install and verify](#install-and-verify) · [Validation](#validation) · [Output scope](#output-scope) · [Troubleshooting](#troubleshooting) · [Related products and further reading](#related-products-and-further-reading)
+Navigation: [When to use it](#when-to-use-it) · [See the expected result](#see-the-expected-result) · [Quick start on synthetic data](#quick-start-on-synthetic-data) · [Using it from OpenClaw](#using-it-from-openclaw) · [Input, output and completion](#input-output-and-completion) · [Commands and configuration](#commands-and-configuration) · [Data and effects](#data-and-effects) · [Get the private repository](#get-the-private-repository) · [Compatibility](#compatibility) · [Install and verify](#install-and-verify) · [Validation](#validation) · [Output scope](#output-scope) · [Troubleshooting](#troubleshooting) · [Related products and further reading](#related-products-and-further-reading) · [Measured before/after behavior](#measured-beforeafter-behavior)
 
 ## When to use it
 
@@ -137,3 +137,13 @@ Private clone returns 404 → check the authenticated account and repository rea
 See [release notes](RELEASE-NOTES.md) and [tested compatibility](COMPATIBILITY.md).
 Run `python3 scripts/check-docs.py` to validate local documentation links and declared interfaces;
 CI also runs the synthetic quickstart. Private GitHub access is required to download releases.
+
+## Measured before/after behavior
+
+**Scoped efficiency improvement observed.** Strict success on the recorded synthetic battery was
+30/30 before and 30/30 after. The preregistered threshold was met on this specific synthetic battery. This is not a guarantee for other tasks, models or production environments.
+
+No failed strict trials were recorded in this battery.
+
+See [the full comparison, scope, source pin and reproducible evidence](BENCHMARK.md).
+Installation alone does not guarantee a better answer on every task.

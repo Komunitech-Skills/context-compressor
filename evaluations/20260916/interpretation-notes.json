@@ -1,0 +1,9 @@
+[
+  {
+    "product": "smart-cache-pro",
+    "case": "unicode-context",
+    "category": "coverage_limit",
+    "note": "Despite its historical case ID, this fixture uses Indonesian words written entirely with ASCII characters. It does not establish non-ASCII Unicode fidelity. Keep it in the original denominator; a separately labeled real-Unicode E2E probe must not be folded into the scored comparison.",
+    "evidence": "specs/pilot-cases.json"
+  }
+]
