@@ -1,3 +1,7 @@
+# v1.0.0 — portfolio contract
+
+Rename the plugin and package ID to `context-compressor`. Add atomic config migration with dry-run, duplicate-ID refusal and rollback. Preserve lossless research, structured results and agent handoffs. No change is deployed directly to Rin.
+
 # v2026.09.15-readiness.1
 
 Documentation links and declared lifecycle CLI flags are checked in CI; the existing synthetic example remains required.

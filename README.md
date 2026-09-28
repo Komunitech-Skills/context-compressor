@@ -1,4 +1,4 @@
-# smart-cache-pro
+# context-compressor
 
 Preserve complete verbose tool output in the owning workspace before returning a shorter view to the
 model. Structured, research and agent-handoff results remain intact by default.
@@ -20,7 +20,7 @@ bash examples/quickstart.sh
 ```
 
 The provider-free fixture exercises real hook logic without installing or activating a live plugin.
-Success ends with `Quickstart passed: smart-cache-pro`.
+Success ends with `Quickstart passed: context-compressor`.
 
 ## Install and configure
 
@@ -28,15 +28,15 @@ Authenticate to this private repository and check out a reviewed full commit. Re
 manifest and the selected instance before accepting its declared capabilities.
 
 ```bash
-git clone https://github.com/rin-proxy/smart-cache-pro.git
-cd smart-cache-pro
+git clone https://github.com/rin-proxy/context-compressor.git
+cd context-compressor
 REF=FULL_40_CHARACTER_COMMIT
 git checkout --detach "$REF"
 bash test.sh
 openclaw plugins install "$PWD" --force --accept-capabilities
 ```
 
-Add the following value under `plugins.entries.smart-cache-pro` in the selected instance. Preserve
+Add the following value under `plugins.entries.context-compressor` in the selected instance. Preserve
 unrelated configuration.
 
 ```json
@@ -56,6 +56,18 @@ unrelated configuration.
 defaults to shell/process tools, an empty list disables compression, and `denyTools` takes
 precedence. Restart only the selected Gateway after JavaScript changes, then verify a new long result
 and its full-output file.
+
+## Upgrade from the previous plugin ID
+
+After installing the new plugin package, migrate an isolated instance configuration. The first command is read-only; apply refuses configurations where both IDs are active.
+
+```bash
+python3 scripts/migrate-plugin-id.py plan --config /absolute/path/openclaw.json
+python3 scripts/migrate-plugin-id.py apply --config /absolute/path/openclaw.json
+python3 scripts/migrate-plugin-id.py rollback --config /absolute/path/openclaw.json
+```
+
+The migration preserves the complete old entry under `context-compressor`, leaves unrelated configuration unchanged, and can restore `smart-cache-pro` exactly. Restart only the selected Gateway after acceptance.
 
 ## Scope and safety
 

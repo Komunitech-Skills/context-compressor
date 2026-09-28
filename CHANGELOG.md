@@ -1,5 +1,12 @@
 # 0.4.4 — Preserve research and agent handoffs
 
+## 1.0.0 — 2026-09-28
+
+- Rename the plugin and package ID to `context-compressor`.
+- Add atomic config migration with dry-run, duplicate-ID refusal and rollback.
+- Preserve lossless research, structured results and agent handoffs.
+
+
 ## 2026-09-14 — Audit acceptance
 
 - Document private-repository access, explicit prerequisites, functional expectations and recovery limits.
@@ -23,7 +30,7 @@ Compress verbose tool output only after preserving the complete result in the ow
 
 Explicit workspace selection, reversible lifecycle and regression coverage; install status does not imply runtime readiness.
 
-— smart-cache-pro
+— context-compressor
 
 ## 0.4.1 (2026-07-16)
 - Verified live on **OpenClaw 2026.7.1**: plugin loads, `register()` runs, and the live

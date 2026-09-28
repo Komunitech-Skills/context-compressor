@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// report.mjs — Smart Cache Pro savings report.
+// report.mjs — Context Compressor savings report.
 // Reads the v0.2.0 ledger (memory/cache/stats.jsonl) + the compaction audit log
 // and prints what was saved. Pure Node, no deps, best-effort: malformed lines are
 // skipped, the script never throws, and "saved" never means "lost" (full output is
@@ -13,7 +13,7 @@ const has = (f) => argv.includes(f);
 const val = (f) => { const i = argv.indexOf(f); return i >= 0 ? argv[i + 1] : undefined; };
 
 if (has("--help") || has("-h")) {
-  console.log(`Smart Cache Pro — savings report
+  console.log(`Context Compressor — savings report
   node scripts/report.mjs [options]
     --brief             one-line summary
     --rate <usd>        also show est. cost saved at <usd> per 1M tokens (your number)
@@ -35,7 +35,7 @@ try {
 } catch { /* no ledger yet */ }
 
 if (!rows.length) {
-  console.log("Smart Cache Pro — no compressions recorded yet.");
+  console.log("Context Compressor — no compressions recorded yet.");
   console.log(`(looked in ${statsFile})`);
   process.exit(0);
 }
@@ -80,7 +80,7 @@ const savedTok = (a) => tok(a.charsIn - a.charsOut);
 const savedLines = (a) => a.linesIn - a.linesOut;
 
 if (has("--brief")) {
-  console.log(`Smart Cache Pro · today ${n(T.dumps)} dumps, ${n(savedLines(T))} lines (${savedTok(T)} tok est.) saved · ${comp.today} snapshot${comp.today === 1 ? "" : "s"} · all-time ${savedTok(A)} tok`);
+  console.log(`Context Compressor · today ${n(T.dumps)} dumps, ${n(savedLines(T))} lines (${savedTok(T)} tok est.) saved · ${comp.today} snapshot${comp.today === 1 ? "" : "s"} · all-time ${savedTok(A)} tok`);
   process.exit(0);
 }
 
@@ -89,7 +89,7 @@ const r2 = (label, a, b) => P + String(label).padEnd(32) + String(a).padStart(12
 const line = P + "─".repeat(60);
 
 console.log("");
-console.log(P + "Smart Cache Pro — savings report");
+console.log(P + "Context Compressor — savings report");
 console.log(P + `workspace: ${ws}`);
 console.log("");
 console.log(r2("COMPRESSION (tool output)", "today", "all-time"));

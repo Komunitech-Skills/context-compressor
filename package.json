@@ -1,6 +1,6 @@
 {
-  "name": "smart-cache-pro",
-  "version": "0.4.4",
+  "name": "context-compressor",
+  "version": "1.0.0",
   "type": "module",
   "description": "Automatic token compression + pre-compaction snapshots for OpenClaw agents \u2014 a typed plugin.",
   "license": "UNLICENSED",
@@ -10,12 +10,12 @@
       "./index.js"
     ],
     "compat": {
-      "pluginApi": ">=2026.9.3",
-      "minGatewayVersion": "2026.9.3"
+      "pluginApi": ">=2026.9.6",
+      "minGatewayVersion": "2026.9.6"
     },
     "build": {
-      "openclawVersion": "2026.9.3",
-      "pluginSdkVersion": "2026.9.3"
+      "openclawVersion": "2026.9.6",
+      "pluginSdkVersion": "2026.9.6"
     }
   },
   "scripts": {
@@ -23,6 +23,6 @@
     "report": "node scripts/report.mjs"
   },
   "engines": {
-    "node": ">=22.13.0"
+    "node": ">=24.16.0"
   }
 }

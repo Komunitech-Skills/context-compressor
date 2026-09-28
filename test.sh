@@ -10,3 +10,4 @@ run node test/compress.test.mjs
 run node test/middleware.integration.mjs
 run node test/failure-isolation.mjs
 run node test/research-preservation.mjs
+run python3 -m unittest discover -s tests -p 'test_*.py'

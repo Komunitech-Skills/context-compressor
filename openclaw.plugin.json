@@ -1,6 +1,6 @@
 {
-  "id": "smart-cache-pro",
-  "name": "Smart Cache Pro",
+  "id": "context-compressor",
+  "name": "Context Compressor",
   "description": "Automatic RTK-style compression of verbose tool output + deterministic pre-compaction snapshot. By Rin.",
   "activation": {
     "onStartup": true
@@ -67,5 +67,6 @@
         "description": "Only these tool names may be compressed. Defaults to shell/process tools; use [] to disable output compression. Do not opt research, browser, memory, or inter-agent handoff tools into lossy compression. Valid JSON and structuredContent are preserved."
       }
     }
-  }
+  },
+  "version": "1.0.0"
 }

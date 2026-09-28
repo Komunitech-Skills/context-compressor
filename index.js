@@ -8,7 +8,7 @@ import { compress, detectKind, lineCount } from "./src/compress.js";
 import { teeFullSync } from "./src/tee.js";
 
 export default definePluginEntry({
-  id: "smart-cache-pro", name: "Smart Cache Pro",
+  id: "context-compressor", name: "Context Compressor",
   description: "Preserved tool output compression with per-agent storage and bounded retention.",
   register(api) {
     const cfg = api.pluginConfig ?? {};
@@ -39,7 +39,7 @@ export default definePluginEntry({
         while (scopedWorkspaces.size > 4096) scopedWorkspaces.delete(scopedWorkspaces.keys().next().value);
       }
     }
-    // Middleware context has identity but no workspace in 2026.9.3. Capture the
+    // Middleware context has identity but no workspace in 2026.9.6. Capture the
     // trusted run context before tools execute, or use an explicit workspace map.
     api.on("before_model_resolve", remember);
     function paths(ctx) {
@@ -48,7 +48,7 @@ export default definePluginEntry({
       remember(null, ctx);
       const value = ctx?.workspaceDir || scopeKeys(ctx).map(key => scopedWorkspaces.get(key)).find(Boolean) || (id && workspaces.get(id));
       if (!value || !isAbsolute(value)) {
-        warnOnce(`scope:${id}`, "smart-cache-pro: workspace unresolved; original output retained");
+        warnOnce(`scope:${id}`, "context-compressor: workspace unresolved; original output retained");
         return null;
       }
       const ws = resolve(value), cache = join(ws, "memory", "cache");
@@ -95,7 +95,7 @@ export default definePluginEntry({
       try { maintain(p); } catch { /* retention cannot discard the current output */ }
       const teePath = teeFullSync(text,p.tee);
       if (!teePath) {
-        warnOnce(`write:${p.id}`,"smart-cache-pro: full output save failed; original output retained");
+        warnOnce(`write:${p.id}`,"context-compressor: full output save failed; original output retained");
         return null;
       }
       const replacement = out + `\n[full output: ${teePath}]`;
@@ -122,9 +122,9 @@ export default definePluginEntry({
           if (event?.result?.structuredContent != null) return;
           const content = rewrite(event?.result?.content,event?.toolName,ctx);
           if (content != null) return {result:{...event.result,content}};
-        } catch { warnOnce("middleware-error","smart-cache-pro: compression unavailable; original output retained"); }
+        } catch { warnOnce("middleware-error","context-compressor: compression unavailable; original output retained"); }
       },{runtimes:["openclaw","codex"]});
-    } else warnOnce("unsupported","smart-cache-pro: live middleware unavailable; runtime compression is not active");
+    } else warnOnce("unsupported","context-compressor: live middleware unavailable; runtime compression is not active");
     api.on("tool_result_persist",(event,ctx) => {
       try {
         const content = rewrite(event?.message?.content,ctx?.toolName??event?.toolName,ctx);
@@ -138,11 +138,11 @@ export default definePluginEntry({
         mkdirSync(p.comp,{recursive:true,mode:0o700}); maintain(p);
         writeFileSync(join(p.comp,`snapshot-${Date.now()}-${randomUUID()}.json`),JSON.stringify({at:new Date().toISOString(),agentId:p.id,messages:event.messages}),{mode:0o600,flag:"wx"});
         record(p,{event:"compaction",snapshot:"saved",messageCount:event.messages.length});
-      } catch { warnOnce("snapshot-failed","smart-cache-pro: compaction snapshot failed"); }
+      } catch { warnOnce("snapshot-failed","context-compressor: compaction snapshot failed"); }
     });
     api.on("after_compaction",(event,ctx) => {
       try {const p=paths(ctx);if(p)record(p,{event:"after_compaction",tokensBefore:event?.tokensBefore??null,tokensAfter:event?.tokensAfter??null});} catch {}
     });
-    api.logger?.info?.("smart-cache-pro registered; verify an actual tool result to confirm operation");
+    api.logger?.info?.("context-compressor registered; verify an actual tool result to confirm operation");
   },
 });

@@ -1,0 +1,5 @@
+{
+  "schema": 1,
+  "from": "smart-cache-pro",
+  "to": "context-compressor"
+}

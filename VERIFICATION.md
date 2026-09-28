@@ -1,4 +1,4 @@
-# smart-cache-pro: acceptance and recovery
+# context-compressor: acceptance and recovery
 
 ## Offline regression
 

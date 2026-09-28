@@ -30,7 +30,7 @@ A capable isolated OpenClaw agent before installation versus the same model, rea
 prompt and deadline with this frozen product installed/enabled. Standard bundled skills remained
 available equally. New task sessions and workspace fixtures were used for every repetition.
 Runtime: OpenClaw 2026.9.3; model: openai/gpt-5.6-sol; reasoning: low.
-Tested product source: [`0a8f5fe4e9f2`](https://github.com/rin-proxy/smart-cache-pro/tree/0a8f5fe4e9f2fe935556a535ffe7b1922bae18bd).
+Tested product source: [`0a8f5fe4e9f2`](https://github.com/rin-proxy/context-compressor/tree/0a8f5fe4e9f2fe935556a535ffe7b1922bae18bd).
 There were 10 distinct scenarios, three repetitions per arm; directed workflow
 probes are retained in overall pass counts but excluded from the primary natural-task estimate.
 Here natural means no explicit target-skill workflow instruction; the evaluation still requests
