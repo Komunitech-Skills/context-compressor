@@ -1,3 +1,7 @@
+# v1.0.1 — activation model
+
+Declares passive plugin activation outside model skill discovery. Schedules remain disabled by default, and this release does not deploy or reconfigure Rin.
+
 # v1.0.0 — portfolio contract
 
 Rename the plugin and package ID to `context-compressor`. Add atomic config migration with dry-run, duplicate-ID refusal and rollback. Preserve lossless research, structured results and agent handoffs. No change is deployed directly to Rin.

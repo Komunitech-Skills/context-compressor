@@ -1,5 +1,11 @@
 # context-compressor
 
+> **Product classification:** Plugin · Activation: Passive · Model discovery: Disabled
+
+## Activation model
+
+Passive OpenClaw plugin. It runs only after explicit plugin registration and stays out of skill discovery.
+
 Preserve complete verbose tool output in the owning workspace before returning a shorter view to the
 model. Structured, research and agent-handoff results remain intact by default.
 

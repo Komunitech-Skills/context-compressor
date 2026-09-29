@@ -1,5 +1,9 @@
 # 0.4.4 — Preserve research and agent handoffs
 
+## 1.0.1 - 2026-09-29
+
+- Declare passive plugin activation and exclude it from skill discovery.
+
 ## 1.0.0 — 2026-09-28
 
 - Rename the plugin and package ID to `context-compressor`.
