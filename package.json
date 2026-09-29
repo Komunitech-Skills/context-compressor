@@ -1,6 +1,6 @@
 {
   "name": "context-compressor",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "Automatic token compression + pre-compaction snapshots for OpenClaw agents \u2014 a typed plugin.",
   "license": "UNLICENSED",

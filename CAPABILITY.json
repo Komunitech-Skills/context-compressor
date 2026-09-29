@@ -1,0 +1,14 @@
+{
+  "schema": "rin.capability/v1",
+  "name": "context-compressor",
+  "kind": "plugin",
+  "activation": [
+    "passive"
+  ],
+  "discovery": "none",
+  "audience": [
+    "general"
+  ],
+  "sideEffects": "local-cache",
+  "status": "active"
+}
