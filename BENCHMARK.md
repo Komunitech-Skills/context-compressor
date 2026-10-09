@@ -98,3 +98,6 @@ Strict success: true. Outcome checks: `{"marker": true, "old_value": true, "new_
 ## Interpretation notes
 
 - unicode-context / both / repetition n/a: Despite its historical case ID, this fixture uses Indonesian words written entirely with ASCII characters. It does not establish non-ASCII Unicode fidelity. Keep it in the original denominator; a separately labeled real-Unicode E2E probe must not be folded into the scored comparison.
+## Current-version certification
+
+The historical results below remain reproducibility evidence for their recorded revisions. They do not certify the current release. The current v3 plan is in `evaluations/v3/plan.json`; `evaluations/v3/STATUS.json` is authoritative. Missing live runtime evidence is reported as `not-run`.

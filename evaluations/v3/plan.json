@@ -1,0 +1,102 @@
+{
+  "schema": "rin.evaluation/v3",
+  "product": "context-compressor",
+  "lanes": [
+    "deterministic-e2e",
+    "natural-discovery",
+    "runtime-e2e"
+  ],
+  "frozen": [
+    "model",
+    "openclaw",
+    "reasoning",
+    "provider",
+    "prompt_sha256",
+    "fixture_sha256",
+    "tool_policy",
+    "timeout_seconds",
+    "context_budget"
+  ],
+  "repetitions": 3,
+  "acceptance": {
+    "runtime_valid_rate_min": 0.95,
+    "automatic_uptake_min": 0.9,
+    "manual_uptake_min": 1.0,
+    "quality_relative_gain_min": 0.1,
+    "token_reduction_min": 0.15
+  },
+  "cases": [
+    {
+      "id": "repeated-output",
+      "set": "development",
+      "capability": "repeated output",
+      "prompt": "Compress repeated tool output.",
+      "oracle": "Redundancy decreases while distinct lines remain.",
+      "treatment_receipt": "plugin hook receipt with plugin ID",
+      "negative": false
+    },
+    {
+      "id": "research-citations",
+      "set": "development",
+      "capability": "research citations",
+      "prompt": "Compress research output containing citations and quotes.",
+      "oracle": "Claims, citations, exact quotes, numbers, and uncertainty survive.",
+      "treatment_receipt": "plugin hook receipt with plugin ID",
+      "negative": false
+    },
+    {
+      "id": "code-diff",
+      "set": "development",
+      "capability": "code diff",
+      "prompt": "Compress a code diff and test failure.",
+      "oracle": "Changed lines and the root failure remain reconstructable.",
+      "treatment_receipt": "plugin hook receipt with plugin ID",
+      "negative": false
+    },
+    {
+      "id": "binary-input",
+      "set": "development",
+      "capability": "binary input",
+      "prompt": "Handle binary or invalid text input.",
+      "oracle": "Input is bypassed or rejected without corruption.",
+      "treatment_receipt": "plugin hook receipt with plugin ID",
+      "negative": true
+    },
+    {
+      "id": "plugin-failure",
+      "set": "development",
+      "capability": "plugin failure",
+      "prompt": "Handle an injected compressor exception.",
+      "oracle": "Original content is returned and the agent continues.",
+      "treatment_receipt": "plugin hook receipt with plugin ID",
+      "negative": true
+    },
+    {
+      "id": "heldout-table",
+      "set": "heldout",
+      "capability": "heldout table",
+      "prompt": "Compress an unseen structured table.",
+      "oracle": "Headers and unique values remain.",
+      "treatment_receipt": "plugin hook receipt with plugin ID",
+      "negative": false
+    },
+    {
+      "id": "heldout-long",
+      "set": "heldout",
+      "capability": "heldout long",
+      "prompt": "Compress an unseen long output near limits.",
+      "oracle": "Configured bounds are honored with a plugin receipt.",
+      "treatment_receipt": "plugin hook receipt with plugin ID",
+      "negative": false
+    },
+    {
+      "id": "heldout-sensitive",
+      "set": "heldout",
+      "capability": "heldout sensitive",
+      "prompt": "Compress content containing secret-like tokens.",
+      "oracle": "No new exposure is introduced and redaction rules hold.",
+      "treatment_receipt": "plugin hook receipt with plugin ID",
+      "negative": true
+    }
+  ]
+}

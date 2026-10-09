@@ -1,0 +1,7 @@
+{
+  "schema": "rin.evaluation-status/v3",
+  "product": "context-compressor",
+  "certification": "not-run",
+  "reason": "A live OpenClaw model/provider was not available in the repository build environment. Deterministic E2E is enforced by test.sh; no current-version model superiority claim is made.",
+  "runCommand": "python3 scripts/evaluation-v3.py evaluations/v3/plan.json --attempts <complete-attempts.json> --output evaluations/v3/report.json"
+}
