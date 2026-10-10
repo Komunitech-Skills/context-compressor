@@ -1,4 +1,10 @@
-# 0.4.4 — Preserve research and agent handoffs
+# Changelog
+
+## 1.0.2 - 2026-10-10
+
+- Compress long plain-text stdout inside OpenClaw Code Mode exec transport envelopes.
+- Preserve valid JSON envelopes, arbitrary command JSON, structured results, research and handoffs.
+- Record `transport` in compression receipts to distinguish direct and Code Mode results.
 
 ## 1.0.1 - 2026-09-29
 
@@ -25,8 +31,6 @@
 
 - Treat an explicit workspaceByAgent mapping as an agent allowlist across tool middleware, persistence and compaction hooks. Runtime workspace discovery cannot opt unlisted agents into compression.
 - Retain automatic discovery when the mapping is omitted; an empty mapping disables processing.
-
-# Changelog
 
 ## 2026-09-11 integration remediation
 

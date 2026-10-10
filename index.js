@@ -85,7 +85,7 @@ export default definePluginEntry({
         appendFileSync(p.stats,JSON.stringify({at:new Date().toISOString(),agentId:p.id,...row})+"\n",{mode:0o600});
       } catch { /* telemetry failure never changes the tool result */ }
     }
-    function compressText(text, toolName, ctx) {
+    function compressText(text, toolName, ctx, transport = "plain") {
       if (!allowTools.has(toolName) || denyTools.has(toolName) || typeof text !== "string" || lineCount(text)<minLines || text.includes("[full output:")) return null;
       try { JSON.parse(text); return null; } catch { /* Plain text may be compressed. */ }
       const start = performance.now(), kind = detectKind(text), out = compress(text,kind,{maxLines:minLines});
@@ -100,17 +100,42 @@ export default definePluginEntry({
       }
       const replacement = out + `\n[full output: ${teePath}]`;
       if (replacement.length >= text.length) return null;
-      record(p,{tool:toolName??"?",kind,linesIn:lineCount(text),linesOut:lineCount(replacement),charsIn:text.length,
+      record(p,{tool:toolName??"?",transport,kind,linesIn:lineCount(text),linesOut:lineCount(replacement),charsIn:text.length,
         charsOut:replacement.length,savedChars:text.length-replacement.length,elapsedMs:performance.now()-start});
       return replacement;
     }
+    // Code Mode serializes an exec result as a one-line JSON transport envelope.
+    // Recognize only that narrow runtime-owned shape, then compress its stdout
+    // field while leaving arbitrary JSON from commands lossless.
+    function rewriteCodeModeEnvelope(text, tool, ctx) {
+      if (typeof text !== "string" || !text.startsWith("{") || !allowTools.has(tool) || denyTools.has(tool)) return null;
+      let envelope;
+      try { envelope = JSON.parse(text); } catch { return null; }
+      const value = envelope?.value;
+      const isEnvelope = envelope && !Array.isArray(envelope)
+        && Array.isArray(envelope.output)
+        && typeof envelope.replaySafe === "boolean"
+        && envelope.telemetry && typeof envelope.telemetry === "object" && !Array.isArray(envelope.telemetry)
+        && value && typeof value === "object" && !Array.isArray(value)
+        && typeof value.status === "string" && envelope.status === value.status
+        && typeof value.aggregated === "string"
+        && Object.prototype.hasOwnProperty.call(value,"exitCode");
+      if (!isEnvelope) return null;
+      const aggregated = compressText(value.aggregated,tool,ctx,"code-mode-envelope");
+      if (aggregated == null) return null;
+      const rewritten = JSON.stringify({...envelope,value:{...value,aggregated}});
+      return rewritten.length < text.length ? rewritten : null;
+    }
+    function rewriteText(text, tool, ctx) {
+      return compressText(text,tool,ctx) ?? rewriteCodeModeEnvelope(text,tool,ctx);
+    }
     function rewrite(content, tool, ctx) {
-      if (typeof content === "string") return compressText(content,tool,ctx);
+      if (typeof content === "string") return rewriteText(content,tool,ctx);
       if (!Array.isArray(content)) return null;
       let changed = false;
       const next = content.map(block => {
         if (block?.type !== "text") return block;
-        const text = compressText(block.text,tool,ctx);
+        const text = rewriteText(block.text,tool,ctx);
         if (text == null) return block;
         changed = true; return {...block,text};
       });

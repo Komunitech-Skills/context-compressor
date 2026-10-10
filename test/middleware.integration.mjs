@@ -48,6 +48,21 @@ ok("kept +/- change", txt.includes("-old") && txt.includes("+new"));
 ok("dropped context lines", !txt.includes("ctx40"));
 ok("tee pointer present", txt.includes("[full output:"));
 ok("details preserved", r.result.details && r.result.details.x === 1);
+const codeModeOutput = bigText + "\n" + Array.from({ length: 350 }, (_, i) => ` extra${i}`).join("\n");
+const codeModeEnvelope = JSON.stringify({
+  status: "completed", replaySafe: false,
+  telemetry: { catalogSize: 36, sources: { openclaw: 36 }, counterScope: "synthetic" },
+  output: [],
+  value: { status: "completed", exitCode: 0, exitSignal: null, exitReason: "exit", durationMs: 1,
+    aggregated: codeModeOutput, noOutputTimedOut: false, cwd: WS },
+});
+const codeMode = mw({ toolName: "exec", result: { content: [{ type: "text", text: codeModeEnvelope }], details: { keep: true } } }, { agentId: "any-agent" });
+const decoded = JSON.parse(codeMode.result.content[0].text);
+ok("Code Mode envelope rewritten", decoded.value.aggregated.includes("[full output:") && !decoded.value.aggregated.includes("extra340"));
+ok("Code Mode envelope remains valid JSON", decoded.status === "completed" && decoded.output.length === 0);
+ok("Code Mode details preserved", codeMode.result.details.keep === true);
+const lookalike = JSON.stringify({ status: "completed", value: { status: "completed", exitCode: 0, aggregated: codeModeOutput } });
+ok("arbitrary JSON lookalike preserved", mw({ toolName: "exec", result: { content: [{ type: "text", text: lookalike }] } }, { agentId: "any-agent" }) === undefined);
 ok("image-only skipped", mw({ toolName: "x", result: { content: [{ type: "image", url: "z" }] } }, {}) === undefined);
 ok("small skipped", mw({ toolName: "x", result: { content: [{ type: "text", text: "a\nb" }] } }, {}) === undefined);
 const already = "x\n".repeat(50) + "[full output: /z]";

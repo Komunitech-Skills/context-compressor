@@ -14,6 +14,8 @@ model. Structured, research and agent-handoff results remain intact by default.
 Use this OpenClaw plugin for bulky shell/process output when the full artifact must remain available.
 A shortened result should contain a full-output reference whose file preserves the original. Unknown
 scope, failed writes, structured data, research output and handoffs pass through unchanged.
+OpenClaw Code Mode exec envelopes are supported: only their plain-text `value.aggregated` field is
+eligible, while the envelope remains valid JSON and its complete stdout is saved before rewriting.
 
 Example request: **“Run a verbose synthetic shell tool and verify the saved full output.”** The
 expected result is a smaller model-facing payload plus a complete private artifact. Character

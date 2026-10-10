@@ -44,6 +44,12 @@ try {
     assert.equal(persist({ message: { content: handoff } }, { ...ctx, toolName: tool }), undefined);
     assert.equal(middleware(event(tool, evidence, { structuredContent: { findings: ['keep'] } }), ctx), undefined);
   }
+  const codeModeResearch = JSON.stringify({
+    status: 'completed', replaySafe: false,
+    telemetry: { catalogSize: 1, sources: { openclaw: 1 }, counterScope: 'fixture' }, output: [],
+    value: { status: 'completed', exitCode: 0, aggregated: handoff, cwd: root },
+  });
+  assert.equal(middleware(event('exec', codeModeResearch), ctx), undefined, 'structured JSON stdout inside Code Mode must remain lossless');
   const diff = 'diff --git a/x b/x\n@@ -1,2 +1,2 @@\n-old\n+new\n' + Array.from({ length: 120 }, (_, i) => ` context ${i}`).join('\n');
   const compressed = middleware(event('exec', diff), ctx);
   const text = compressed.result.content[0].text;

@@ -1,3 +1,9 @@
+# v1.0.2 — OpenClaw Code Mode compatibility
+
+Recognizes the narrow OpenClaw Code Mode exec transport envelope and compresses only long plain-text
+stdout in `value.aggregated`. The full stdout is saved first, the envelope remains valid JSON, and
+arbitrary JSON continues to pass through unchanged.
+
 # v1.0.1 — activation model
 
 Declares passive plugin activation outside model skill discovery. Schedules remain disabled by default, and this release does not deploy or reconfigure Rin.
