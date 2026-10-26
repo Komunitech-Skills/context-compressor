@@ -111,5 +111,13 @@ efficiency threshold. It does not guarantee savings for other tools, models or e
 [BENCHMARK.md](BENCHMARK.md) for the exact protocol and [VERIFICATION.md](VERIFICATION.md) for live
 acceptance and recovery.
 
+### Current-version comparison status
+
+The separate v3 three-repetition campaign was cancelled by the owner on 2026-10-26. The scoped
+historical benchmark remains published with its original runtime and source pins. This release does
+not claim statistically certified superiority on the current OpenClaw version; readiness is based on
+deterministic tests, functional quickstart and lifecycle checks, and the explicitly scoped recorded
+evidence.
+
 Further reading: [release notes](RELEASE-NOTES.md) · [changelog](CHANGELOG.md) ·
 [commercial license](LICENSE-COMMERCIAL.md).

@@ -98,6 +98,9 @@ Strict success: true. Outcome checks: `{"marker": true, "old_value": true, "new_
 ## Interpretation notes
 
 - unicode-context / both / repetition n/a: Despite its historical case ID, this fixture uses Indonesian words written entirely with ASCII characters. It does not establish non-ASCII Unicode fidelity. Keep it in the original denominator; a separately labeled real-Unicode E2E probe must not be folded into the scored comparison.
-## Current-version certification
+## Current-version comparison status
 
-The historical results below remain reproducibility evidence for their recorded revisions. They do not certify the current release. The current v3 plan is in `evaluations/v3/plan.json`; `evaluations/v3/STATUS.json` is authoritative. Missing live runtime evidence is reported as `not-run`.
+The planned v3 three-repetition campaign was cancelled by the owner on 2026-10-26. Its frozen plan
+is retained as a design record and is not pending certification. The historical results above remain
+reproducibility evidence for their recorded revisions and runtime pins. They do not establish
+statistical superiority on the current OpenClaw version. `evaluations/v3/STATUS.json` is authoritative.

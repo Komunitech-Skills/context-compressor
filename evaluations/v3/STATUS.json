@@ -1,7 +1,9 @@
 {
   "schema": "rin.evaluation-status/v3",
   "product": "context-compressor",
-  "certification": "not-run",
-  "reason": "A live OpenClaw model/provider was not available in the repository build environment. Deterministic E2E is enforced by test.sh; no current-version model superiority claim is made.",
-  "runCommand": "python3 scripts/evaluation-v3.py evaluations/v3/plan.json --attempts <complete-attempts.json> --output evaluations/v3/report.json"
+  "certification": "cancelled",
+  "decisionDate": "2026-10-26",
+  "reason": "The owner cancelled the planned current-version three-repetition campaign. Deterministic E2E, functional quickstart and lifecycle checks, and scoped historical evidence remain the release basis; no current-version statistical superiority claim is made.",
+  "planDisposition": "retained-as-design-record",
+  "deterministicCommand": "bash test.sh"
 }
